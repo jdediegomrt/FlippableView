@@ -44,7 +44,6 @@ public class FlippableView extends FrameLayout {
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.FlippableView, 0, 0);
         try {
             LayoutInflater inflater = LayoutInflater.from(context);
-
             backFace = a.getResourceId(R.styleable.FlippableView_backFace, 0)!=0 ?
                     inflater.inflate(a.getResourceId(R.styleable.FlippableView_backFace, 0), this, false) :
                     null;
@@ -53,11 +52,10 @@ public class FlippableView extends FrameLayout {
                     null;
             inAnimation = a.getResourceId(R.styleable.FlippableView_inAnimation, 0)!=0 ?
                     (AnimatorSet) AnimatorInflater.loadAnimator(getContext(), a.getResourceId(R.styleable.FlippableView_inAnimation, 0)) :
-                    null;
+                    (AnimatorSet) AnimatorInflater.loadAnimator(getContext(), R.animator.card_flip_in);
             outAnimation = a.getResourceId(R.styleable.FlippableView_outAnimation, 0)!=0 ?
                     (AnimatorSet) AnimatorInflater.loadAnimator(getContext(), a.getResourceId(R.styleable.FlippableView_outAnimation, 0)) :
-                    null;
-
+                    (AnimatorSet) AnimatorInflater.loadAnimator(getContext(), R.animator.card_flip_out);
             addView(backFace);
             addView(frontFace);
             changeCameraDistance();
