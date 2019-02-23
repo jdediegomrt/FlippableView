@@ -1,24 +1,37 @@
 package com.jaimedediego.flippableview;
 
+import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class FlippableView extends FrameLayout {
+
+    private final String FLIPPABLEVIEW_TAG = "FlippableView";
+    private final int RESID_NOTFOUND = -1;
+    private final long DEFAULT_ANIMATION_DURATION = 1000;
+    private final long DEFAULT_CAMERA_DISTANCE = 8000;
 
     private View frontFace;
     private View backFace;
 
-    private AnimatorSet inAnimation;
-    private AnimatorSet outAnimation;
+    private Animation inAnimation;
+    private Animation outAnimation;
 
     private boolean isBackVisible = false;
+    private long duration;
+
+    private long cameraDistance;
 
     public FlippableView(Context context) {
         super(context);
@@ -44,30 +57,55 @@ public class FlippableView extends FrameLayout {
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.FlippableView, 0, 0);
         try {
             LayoutInflater inflater = LayoutInflater.from(context);
-            backFace = a.getResourceId(R.styleable.FlippableView_backFace, 0)!=0 ?
-                    inflater.inflate(a.getResourceId(R.styleable.FlippableView_backFace, 0), this, false) :
-                    null;
-            frontFace = a.getResourceId(R.styleable.FlippableView_frontFace, 0)!=0 ?
-                    inflater.inflate(a.getResourceId(R.styleable.FlippableView_frontFace, 0), this, false) :
-                    null;
-            inAnimation = a.getResourceId(R.styleable.FlippableView_inAnimation, 0)!=0 ?
-                    (AnimatorSet) AnimatorInflater.loadAnimator(getContext(), a.getResourceId(R.styleable.FlippableView_inAnimation, 0)) :
-                    (AnimatorSet) AnimatorInflater.loadAnimator(getContext(), R.animator.card_flip_in);
-            outAnimation = a.getResourceId(R.styleable.FlippableView_outAnimation, 0)!=0 ?
-                    (AnimatorSet) AnimatorInflater.loadAnimator(getContext(), a.getResourceId(R.styleable.FlippableView_outAnimation, 0)) :
-                    (AnimatorSet) AnimatorInflater.loadAnimator(getContext(), R.animator.card_flip_out);
+
+            backFace = a.getResourceId(R.styleable.FlippableView_backFace, RESID_NOTFOUND)!=RESID_NOTFOUND ?
+                    inflater.inflate(a.getResourceId(R.styleable.FlippableView_backFace, RESID_NOTFOUND), this, false)
+                    : null;
+
+            frontFace = a.getResourceId(R.styleable.FlippableView_frontFace, RESID_NOTFOUND)!=RESID_NOTFOUND ?
+                    inflater.inflate(a.getResourceId(R.styleable.FlippableView_frontFace, RESID_NOTFOUND), this, false)
+                    : null;
+
+            setCameraDistance(a.getInteger(R.styleable.FlippableView_cameraDistance, RESID_NOTFOUND)!=RESID_NOTFOUND ?
+                    a.getInteger(R.styleable.FlippableView_cameraDistance, RESID_NOTFOUND)
+                    : DEFAULT_CAMERA_DISTANCE);
+
+            if(a.getResourceId(R.styleable.FlippableView_inAnimation, RESID_NOTFOUND)!=RESID_NOTFOUND){
+                inAnimation = new Animation(
+                        (AnimatorSet) AnimatorInflater.loadAnimator(getContext(), a.getResourceId(R.styleable.FlippableView_inAnimation, RESID_NOTFOUND)),
+                        a.getResourceId(R.styleable.FlippableView_inAnimation, RESID_NOTFOUND)
+                );
+            } else {
+                inAnimation = new Animation(
+                        (AnimatorSet) AnimatorInflater.loadAnimator(getContext(), R.animator.card_flip_in),
+                        R.animator.card_flip_in
+                );
+                duration = DEFAULT_ANIMATION_DURATION;
+            }
+
+            if(a.getResourceId(R.styleable.FlippableView_inAnimation, RESID_NOTFOUND)!=RESID_NOTFOUND){
+                outAnimation = new Animation(
+                        (AnimatorSet) AnimatorInflater.loadAnimator(getContext(), a.getResourceId(R.styleable.FlippableView_outAnimation, RESID_NOTFOUND)),
+                        a.getResourceId(R.styleable.FlippableView_outAnimation, RESID_NOTFOUND)
+                );
+            } else {
+                outAnimation = new Animation(
+                        (AnimatorSet) AnimatorInflater.loadAnimator(getContext(), R.animator.card_flip_out),
+                        R.animator.card_flip_out
+                );
+                duration = DEFAULT_ANIMATION_DURATION;
+            }
+
             addView(backFace);
             addView(frontFace);
-            changeCameraDistance();
-
         } finally {
             a.recycle();
         }
     }
 
-    private void changeCameraDistance() {
-        int distance = 8000;
-        float scale = getResources().getDisplayMetrics().density * distance;
+    public void setCameraDistance(long cameraDistance) {
+        this.cameraDistance = cameraDistance;
+        float scale = getResources().getDisplayMetrics().density * cameraDistance;
         frontFace.setCameraDistance(scale);
         backFace.setCameraDistance(scale);
     }
@@ -86,29 +124,55 @@ public class FlippableView extends FrameLayout {
     }
 
     public void setAnimations(Integer inAnimationResId, Integer outAnimationResId) {
-        inAnimation = inAnimationResId != null ? (AnimatorSet) AnimatorInflater.loadAnimator(getContext(), inAnimationResId) : null;
-        outAnimation = outAnimationResId != null ? (AnimatorSet) AnimatorInflater.loadAnimator(getContext(), outAnimationResId) : null;
+        inAnimation = inAnimationResId != null ?
+                new Animation(
+                        (AnimatorSet) AnimatorInflater.loadAnimator(getContext(), inAnimationResId),
+                        inAnimationResId
+                )
+                : null;
+
+        outAnimation = outAnimationResId != null ?
+                new Animation(
+                        (AnimatorSet) AnimatorInflater.loadAnimator(getContext(), outAnimationResId),
+                        outAnimationResId
+                )
+                : null;
     }
 
-    public void setAnimations(ObjectAnimator inAnimation, ObjectAnimator outAnimation) {
-        this.inAnimation = inAnimation != null ? new AnimatorSet() : null;
-        if (this.inAnimation != null) this.inAnimation.play(inAnimation);
-        this.outAnimation = outAnimation != null ? new AnimatorSet() : null;
-        if (this.outAnimation != null) this.outAnimation.play(outAnimation);
+    public void setAnimations(AnimatorSet inAnimation, AnimatorSet outAnimation) {
+        this.inAnimation.setAnimation(inAnimation);
+        this.outAnimation.setAnimation(outAnimation);
+    }
+
+    public void setFlipDuration(long duration){
+        if(inAnimation.getAnimationResId()==null || inAnimation.getAnimationResId()!=R.animator.card_flip_in ||
+                outAnimation.getAnimationResId()==null || outAnimation.getAnimationResId()!=R.animator.card_flip_out){
+            Log.e(FLIPPABLEVIEW_TAG, "setFlipDuration -> can only be called if animations are by default");
+        } else {
+            for(Animator animation : inAnimation.getAnimation().getChildAnimations()){
+                if(animation.getDuration()==this.duration) animation.setDuration(duration);
+                else if(animation.getStartDelay()==this.duration/2) animation.setStartDelay(duration/2);
+            }
+            for(Animator animation : outAnimation.getAnimation().getChildAnimations()){
+                if(animation.getDuration()==this.duration) animation.setDuration(duration);
+                else if(animation.getStartDelay()==this.duration/2) animation.setStartDelay(duration/2);
+            }
+            this.duration = duration;
+        }
     }
 
     public void flip() {
         if (!isBackVisible) {
-            outAnimation.setTarget(frontFace);
-            inAnimation.setTarget(backFace);
-            outAnimation.start();
-            inAnimation.start();
+            outAnimation.getAnimation().setTarget(frontFace);
+            inAnimation.getAnimation().setTarget(backFace);
+            outAnimation.getAnimation().start();
+            inAnimation.getAnimation().start();
             isBackVisible = true;
         } else {
-            outAnimation.setTarget(backFace);
-            inAnimation.setTarget(frontFace);
-            outAnimation.start();
-            inAnimation.start();
+            outAnimation.getAnimation().setTarget(backFace);
+            inAnimation.getAnimation().setTarget(frontFace);
+            outAnimation.getAnimation().start();
+            inAnimation.getAnimation().start();
             isBackVisible = false;
         }
     }
