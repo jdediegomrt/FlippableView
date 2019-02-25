@@ -5,6 +5,7 @@
         <attr name="backFace" format="reference" />
         <attr name="inAnimation" format="reference" />
         <attr name="outAnimation" format="reference" />
-        <attr name="cameraDistance" format="integer" />
+        <attr name="cameraFieldOfView" format="integer" />
+        <attr name="flipDuration" format="integer" />
     </declare-styleable>
 </resources>

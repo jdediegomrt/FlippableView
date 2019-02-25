@@ -12,6 +12,7 @@
         android:layout_height="match_parent"
         android:layout_centerInParent="true"
         app:backFace="@layout/back_face"
-        app:frontFace="@layout/front_face" />
+        app:frontFace="@layout/front_face"
+        app:flipDuration="300"/>
 
 </RelativeLayout>

@@ -15,7 +15,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         final FlippableView flippableView = findViewById(R.id.flippable_view);
-        flippableView.setFlipDuration(500);
 
         flippableView.setOnClickListener(new View.OnClickListener() {
             @Override
