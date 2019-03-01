@@ -25,6 +25,29 @@ public class FlippableView extends FrameLayout {
 
     private Animation inAnimation;
     private Animation outAnimation;
+    private Animator.AnimatorListener avoidClickOnFlipListener = new Animator.AnimatorListener() {
+        @Override
+        public void onAnimationStart(Animator animation) {
+            setClickable(false);
+            setFocusable(false);
+        }
+
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            setClickable(true);
+            setFocusable(true);
+        }
+
+        @Override
+        public void onAnimationCancel(Animator animation) {
+
+        }
+
+        @Override
+        public void onAnimationRepeat(Animator animation) {
+
+        }
+    };
 
     private boolean isBackVisible = false;
     private long cameraFieldOfView;
@@ -234,6 +257,16 @@ public class FlippableView extends FrameLayout {
             }
         } else {
             throw new RuntimeException("flip() -> all animations must be setted in order to make a flip");
+        }
+    }
+
+    public void avoidClickOnFlip(boolean avoid){
+        if (avoid){
+            inAnimation.getAnimation().addListener(avoidClickOnFlipListener);
+            outAnimation.getAnimation().addListener(avoidClickOnFlipListener);
+        } else {
+            inAnimation.getAnimation().removeListener(avoidClickOnFlipListener);
+            outAnimation.getAnimation().removeListener(avoidClickOnFlipListener);
         }
     }
 }
