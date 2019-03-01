@@ -7,5 +7,6 @@
         <attr name="outAnimation" format="reference" />
         <attr name="cameraFieldOfView" format="integer" />
         <attr name="flipDuration" format="integer" />
+        <attr name="avoidClickOnFlip" format="boolean" />
     </declare-styleable>
 </resources>

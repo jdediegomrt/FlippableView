@@ -114,6 +114,8 @@ public class FlippableView extends FrameLayout {
 
             setFlipDuration(a.getInteger(R.styleable.FlippableView_flipDuration, DEFAULT_ANIMATION_DURATION));
 
+            avoidClickOnFlip(a.getBoolean(R.styleable.FlippableView_avoidClickOnFlip, false));
+
             addView(backFace);
             addView(frontFace);
         } finally {
