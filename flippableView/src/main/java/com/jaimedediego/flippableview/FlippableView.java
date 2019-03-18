@@ -166,10 +166,7 @@ public class FlippableView extends FrameLayout {
     public void setFrontFaceVisible(){
         if(isBackVisible) {
             long duration = getFlipDuration();
-            outAnimation.getAnimation().setDuration(0);
-            inAnimation.getAnimation().setDuration(0);
-            outAnimation.getAnimation().setStartDelay(0);
-            inAnimation.getAnimation().setStartDelay(0);
+            setFlipDuration(0);
             flip();
             setFlipDuration(duration);
         }
@@ -178,10 +175,7 @@ public class FlippableView extends FrameLayout {
     public void setBackFaceVisible(){
         if(!isBackVisible){
             long duration = getFlipDuration();
-            outAnimation.getAnimation().setDuration(0);
-            inAnimation.getAnimation().setDuration(0);
-            outAnimation.getAnimation().setStartDelay(0);
-            inAnimation.getAnimation().setStartDelay(0);
+            setFlipDuration(0);
             flip();
             setFlipDuration(duration);
         }
