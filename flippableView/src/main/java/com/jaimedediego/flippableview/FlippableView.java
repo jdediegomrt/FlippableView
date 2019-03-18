@@ -168,6 +168,8 @@ public class FlippableView extends FrameLayout {
             long duration = getFlipDuration();
             outAnimation.getAnimation().setDuration(0);
             inAnimation.getAnimation().setDuration(0);
+            outAnimation.getAnimation().setStartDelay(0);
+            inAnimation.getAnimation().setStartDelay(0);
             flip();
             setFlipDuration(duration);
         }
@@ -178,6 +180,8 @@ public class FlippableView extends FrameLayout {
             long duration = getFlipDuration();
             outAnimation.getAnimation().setDuration(0);
             inAnimation.getAnimation().setDuration(0);
+            outAnimation.getAnimation().setStartDelay(0);
+            inAnimation.getAnimation().setStartDelay(0);
             flip();
             setFlipDuration(duration);
         }
