@@ -21,7 +21,7 @@
             app:flipDuration="300"/>
 
         <com.jaimedediego.flippableview.FlippableView
-            android:id="@+id/instant_flippable_view"
+            android:id="@+id/second_flippable_view"
             android:layout_width="200dp"
             android:layout_height="200dp"
             app:backFace="@layout/back_face"

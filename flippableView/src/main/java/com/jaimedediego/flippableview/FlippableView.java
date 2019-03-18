@@ -3,6 +3,9 @@ package com.jaimedediego.flippableview;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
@@ -164,6 +167,7 @@ public class FlippableView extends FrameLayout {
     }
 
     public void setFrontFaceVisible(){
+        checkIsAnimatedByDefault();
         if(isBackVisible) {
             long duration = getFlipDuration();
             setFlipDuration(0);
@@ -173,6 +177,7 @@ public class FlippableView extends FrameLayout {
     }
 
     public void setBackFaceVisible(){
+        checkIsAnimatedByDefault();
         if(!isBackVisible){
             long duration = getFlipDuration();
             setFlipDuration(0);
@@ -186,23 +191,24 @@ public class FlippableView extends FrameLayout {
     }
 
     public void setFlipDuration(long duration) {
-        if (inAnimation.getAnimationResId() == null || inAnimation.getAnimationResId() != R.animator.card_flip_in ||
-                outAnimation.getAnimationResId() == null || outAnimation.getAnimationResId() != R.animator.card_flip_out) {
-            Log.e(FLIPPABLEVIEW_TAG, "setFlipDuration() -> can only be called if all animations are by default");
-            throw new RuntimeException("setFlipDuration() -> can only be called if all animations are by default");
-        } else {
-            for (Animator animation : inAnimation.getAnimation().getChildAnimations()) {
-                if (animation.getDuration() == this.flipDuration) animation.setDuration(duration);
-                else if (animation.getStartDelay() == this.flipDuration / 2)
+        checkIsAnimatedByDefault();
+        for (Animator animation : inAnimation.getAnimation().getChildAnimations()) {
+            if (((ObjectAnimator)animation).getPropertyName().equals("rotationY")) {
+                animation.setDuration(duration);
+            } else if (((ObjectAnimator)animation).getPropertyName().equals("alpha")) {
+                if(((ObjectAnimator) animation).getRepeatMode() == ValueAnimator.REVERSE) {
                     animation.setStartDelay(duration / 2);
+                }
             }
-            for (Animator animation : outAnimation.getAnimation().getChildAnimations()) {
-                if (animation.getDuration() == this.flipDuration) animation.setDuration(duration);
-                else if (animation.getStartDelay() == this.flipDuration / 2)
-                    animation.setStartDelay(duration / 2);
-            }
-            flipDuration = duration;
         }
+        for (Animator animation : outAnimation.getAnimation().getChildAnimations()) {
+            if (((ObjectAnimator)animation).getPropertyName().equals("rotationY")) {
+                animation.setDuration(duration);
+            } else if (((ObjectAnimator)animation).getPropertyName().equals("alpha")) {
+                animation.setStartDelay(duration / 2);
+            }
+        }
+        flipDuration = duration;
     }
 
     public AnimatorSet getInAnimation() {
@@ -287,6 +293,14 @@ public class FlippableView extends FrameLayout {
         } else {
             inAnimation.getAnimation().removeListener(avoidClickOnFlipListener);
             outAnimation.getAnimation().removeListener(avoidClickOnFlipListener);
+        }
+    }
+
+    private void checkIsAnimatedByDefault() {
+        if (inAnimation.getAnimationResId() == null || inAnimation.getAnimationResId() != R.animator.card_flip_in ||
+                outAnimation.getAnimationResId() == null || outAnimation.getAnimationResId() != R.animator.card_flip_out) {
+            Log.e(FLIPPABLEVIEW_TAG, "setFlipDuration() -> can only be called if all animations are by default");
+            throw new RuntimeException("setFlipDuration() -> can only be called if all animations are by default");
         }
     }
 }
