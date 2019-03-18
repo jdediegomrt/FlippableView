@@ -17,10 +17,24 @@ public class MainActivity extends AppCompatActivity {
         final FlippableView flippableView = findViewById(R.id.flippable_view);
         flippableView.avoidClickOnFlip(true);
 
+        final FlippableView instantFlippableView = findViewById(R.id.instant_flippable_view);
+        instantFlippableView.avoidClickOnFlip(true);
+
         flippableView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 flippableView.flip();
+            }
+        });
+
+        instantFlippableView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(instantFlippableView.isFrontVisible()){
+                    instantFlippableView.setBackFaceVisible();
+                } else {
+                    instantFlippableView.setFrontFaceVisible();
+                }
             }
         });
     }
